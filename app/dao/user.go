@@ -58,6 +58,15 @@ func GetUserStruct(data interface{}) (*User, error) {
 	return user, nil
 }
 
+func GenerateReferralCode(db *mgo.Session)(string, error){
+	code := lib.RandSeq(6)
+	_, err := UserFindByKey(db, &bson.M{"referral_code": code})
+	if err != nil && err.Error() != "not found" {
+		return code, err
+	}
+	return code, nil
+}
+
 func GenerateMemberId(db *mgo.Session)(string, error){
 	id := lib.RandSeq(6)
 	_, err := UserFindByKey(db, &bson.M{"member_id": id})

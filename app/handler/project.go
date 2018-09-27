@@ -7,7 +7,6 @@ import (
 	"github.com/jackson6/gcic-server/app/dao"
 	"github.com/jackson6/gcic-server/app/payment"
 	"github.com/stripe/stripe-go"
-	"log"
 )
 
 func GetUserEndpoint(w http.ResponseWriter, r *http.Request, user *dao.User) {
@@ -33,7 +32,7 @@ func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWri
 		RespondError(w, http.StatusInternalServerError, InternalError, err)
 		return
 	}
-
+	flow.User.PlanId = plan.ID.Hex()
 	charge := &dao.Charge{
 		Amount: plan.Amount,
 		Currency: stripe.CurrencyJMD,
@@ -48,6 +47,7 @@ func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWri
 			return
 		}
 		charge.Customer = newCustomer
+		flow.User.StripeId = newCustomer.ID
 	}
 	charged, err := payment.ChargeCard(mgoDb, stripeKey, charge)
 	if err != nil {
@@ -57,13 +57,17 @@ func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWri
 	if charged != nil {
 		memberId, err := dao.GenerateMemberId(mgoDb)
 		if err != nil {
-			log.Println("err1")
 			RespondError(w, http.StatusInternalServerError, InternalError, err)
 			return
 		}
 		flow.User.MemberId = memberId
+		referralCode, err := dao.GenerateReferralCode(mgoDb)
+		if err != nil {
+			RespondError(w, http.StatusInternalServerError, InternalError, err)
+			return
+		}
+		flow.User.ReferralCode = referralCode
 		if err := dao.UserInsert(mgoDb, &flow.User); err != nil {
-			log.Println("err2")
 			RespondError(w, http.StatusInternalServerError, InternalError, err)
 			return
 		}

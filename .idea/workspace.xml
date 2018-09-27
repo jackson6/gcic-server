@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="87473612-49b7-498a-9c1f-0e156ff4c87b" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app.go" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/dao/plan.go" beforeDir="false" afterPath="$PROJECT_DIR$/app/dao/plan.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/dao/transactions.go" beforeDir="false" afterPath="$PROJECT_DIR$/app/dao/transactions.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/dao/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/app/dao/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/handler/project.go" beforeDir="false" afterPath="$PROJECT_DIR$/app/handler/project.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/payment/stripe.go" beforeDir="false" afterPath="$PROJECT_DIR$/app/payment/stripe.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -22,17 +17,8 @@
       <file leaf-file-name="project.go" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/handler/project.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="175">
-              <caret line="55" column="5" lean-forward="true" selection-start-line="55" selection-start-column="5" selection-end-line="55" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="model.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/dao/model.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
+            <state relative-caret-position="152">
+              <caret line="34" column="36" lean-forward="true" selection-start-line="34" selection-start-column="36" selection-end-line="34" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -58,8 +44,8 @@
       <file leaf-file-name="user.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/dao/user.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="319">
-              <caret line="87" column="52" lean-forward="true" selection-start-line="87" selection-start-column="52" selection-end-line="88" selection-end-column="32" />
+            <state relative-caret-position="85">
+              <caret line="62" column="61" selection-start-line="62" selection-start-column="61" selection-end-line="62" selection-end-column="61" />
             </state>
           </provider>
         </entry>
@@ -97,7 +83,7 @@
       <file leaf-file-name="app.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/app.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="203">
+            <state relative-caret-position="1394">
               <caret line="115" column="90" lean-forward="true" selection-start-line="115" selection-start-column="90" selection-end-line="115" selection-end-column="90" />
             </state>
           </provider>
@@ -143,8 +129,8 @@
         <option value="$PROJECT_DIR$/app/dao/transactions.go" />
         <option value="$PROJECT_DIR$/app/payment/stripe.go" />
         <option value="$PROJECT_DIR$/app/dao/plan.go" />
-        <option value="$PROJECT_DIR$/app/dao/user.go" />
         <option value="$PROJECT_DIR$/app/app.go" />
+        <option value="$PROJECT_DIR$/app/dao/user.go" />
         <option value="$PROJECT_DIR$/app/handler/project.go" />
       </list>
     </option>
@@ -607,13 +593,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/dao/model.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/dao/plan.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
@@ -621,24 +600,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/dao/user.go">
+    <entry file="file://$PROJECT_DIR$/app/app.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="87" column="52" lean-forward="true" selection-start-line="87" selection-start-column="52" selection-end-line="88" selection-end-column="32" />
+        <state relative-caret-position="1394">
+          <caret line="115" column="90" lean-forward="true" selection-start-line="115" selection-start-column="90" selection-end-line="115" selection-end-column="90" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/app.go">
+    <entry file="file://$PROJECT_DIR$/app/dao/model.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="203">
-          <caret line="115" column="90" lean-forward="true" selection-start-line="115" selection-start-column="90" selection-end-line="115" selection-end-column="90" />
+        <state relative-caret-position="102">
+          <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/dao/user.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="62" column="61" selection-start-line="62" selection-start-column="61" selection-end-line="62" selection-end-column="61" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/handler/project.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="55" column="5" lean-forward="true" selection-start-line="55" selection-start-column="5" selection-end-line="55" selection-end-column="5" />
+        <state relative-caret-position="152">
+          <caret line="34" column="36" lean-forward="true" selection-start-line="34" selection-start-column="36" selection-end-line="34" selection-end-column="36" />
         </state>
       </provider>
     </entry>
