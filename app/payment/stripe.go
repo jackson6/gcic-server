@@ -172,3 +172,19 @@ func GetCustomers(stripeKey string)([]*stripe.Customer){
 	}
 	return customers
 }
+
+func CreateCustomer(stripeKey string, email, token string)(*stripe.Customer, error){
+	stripe.Key = stripeKey
+
+	customerParams := &stripe.CustomerParams{
+		Email: stripe.String(email),
+	}
+	customerParams.SetSource(token)
+
+	newCustomer, err := customer.New(customerParams)
+	if err != nil {
+		return nil, err
+	}
+
+	return newCustomer, nil
+}

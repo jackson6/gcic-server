@@ -7,7 +7,6 @@ import (
 	"github.com/jackson6/gcic-server/app/dao"
 	"github.com/jackson6/gcic-server/app/payment"
 	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/customer"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -42,14 +41,9 @@ func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWri
 	}
 
 	if flow.SaveCard {
-		customerParams := &stripe.CustomerParams{
-			Email: stripe.String(flow.User.Email),
-		}
-		customerParams.SetSource(flow.Token)
-
-		newCustomer, err := customer.New(customerParams)
+		newCustomer, err := payment.CreateCustomer(stripeKey, flow.User.Email, flow.Token)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			RespondError(w, http.StatusInternalServerError, InternalError, err)
 			return
 		}
 		charge.Customer = newCustomer
