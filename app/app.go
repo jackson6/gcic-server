@@ -161,7 +161,7 @@ func (a *App) Delete(path string, f func(w http.ResponseWriter, r *http.Request)
 func (a *App) Run(host string) {
 	log.Println("Application started", time.Now().String())
 	//log.Fatal(http.ListenAndServe(host, &CORSRouterDecorator{a.Router, a.Socket}))
-	log.Fatal(http.ListenAndServeTLS(host, "../../../../../../etc/ssl/certs/apache-selfsigned.crt", "../../../../../../etc/ssl/certs/apache-selfsigned.key", &CORSRouterDecorator{a.Router, a.Socket}))
+	log.Fatal(http.ListenAndServeTLS(host, "../../../../../../etc/ssl/certs/apache-selfsigned.crt", "../../../../../../etc/ssl/private/apache-selfsigned.key", &CORSRouterDecorator{a.Router, a.Socket}))
 }
 
 // setRouters sets the all required routers

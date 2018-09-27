@@ -91,8 +91,8 @@
       <file leaf-file-name="app.go" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/app.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="159" lean-forward="true" selection-start-line="159" selection-end-line="159" />
+            <state relative-caret-position="203">
+              <caret line="163" column="156" selection-start-line="163" selection-start-column="156" selection-end-line="163" selection-end-column="156" />
             </state>
           </provider>
         </entry>
@@ -631,8 +631,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/app.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="159" lean-forward="true" selection-start-line="159" selection-end-line="159" />
+        <state relative-caret-position="203">
+          <caret line="163" column="156" selection-start-line="163" selection-start-column="156" selection-end-line="163" selection-end-column="156" />
         </state>
       </provider>
     </entry>
