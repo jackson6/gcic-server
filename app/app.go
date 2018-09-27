@@ -115,7 +115,7 @@ func (a *App) ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
 					handler.RespondError(w, http.StatusOK, handler.UnauthorizedError, err)
 					return
 				}
-				user, err := dao.UserFindById(a.MongoDB, token.UID)
+				user, err := dao.UserFindByKey(a.MongoDB, &dao.User{UserId: token.UID})
 				if err != nil {
 					handler.RespondError(w, http.StatusOK, handler.NotFound, err)
 					return
