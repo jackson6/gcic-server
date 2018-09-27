@@ -5,19 +5,18 @@ import (
 	"net/http"
 	"log"
 	"time"
-	"../config"
-	"./handler"
+	"github.com/jackson6/gcic-server/config"
+	"github.com/jackson6/gcic-server/app/handler"
 	"gopkg.in/mgo.v2"
 	netContext "golang.org/x/net/context"
 	//context "github.com/gorilla/context"
 	"firebase.google.com/go"
 	"google.golang.org/api/option"
 	"strings"
-	"./dao"
+	"github.com/jackson6/gcic-server/app/dao"
 	"fmt"
 	//"github.com/mitchellh/mapstructure"
 	"github.com/gorilla/context"
-	"./lib"
 	_ "gopkg.in/cq.v1"
 	"database/sql"
 	"github.com/googollee/go-socket.io"
@@ -31,6 +30,7 @@ type App struct {
 	Firebase *firebase.App
 	GraphDB *sql.DB
 	Socket *socketio.Server
+	Stripe string
 }
 
 type CORSRouterDecorator struct {
@@ -62,6 +62,7 @@ func (a *App) Initialize(config *config.Config) {
 	a.Router = mux.NewRouter()
 	a.setRouters()
 	a.Secret = config.SECRET
+	a.Stripe = config.StripeKey
 
 	session, err := mgo.Dial(config.MongoDB.Server)
 	if err != nil {
@@ -110,6 +111,7 @@ func (a *App) ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				}
 				token, err := client.VerifyIDToken(netContext.Background(), bearerToken[1])
 				if err != nil {
+					log.Println(bearerToken[1])
 					handler.RespondError(w, http.StatusOK, handler.UnauthorizedError, err)
 					return
 				}
@@ -121,7 +123,7 @@ func (a *App) ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				context.Set(req, "user", user)
 				next(w, req)
 			} else {
-				handler.RespondError(w, http.StatusOK, handler.UnauthorizedError, fmt.Errorf("Inalid token"))
+				handler.RespondError(w, http.StatusOK, handler.UnauthorizedError, fmt.Errorf("Invalid token"))
 				return
 			}
 		} else {
@@ -164,15 +166,21 @@ func (a *App) Run(host string) {
 func (a *App) setRouters() {
 
 	a.GetSocket("/socket.io/", a.Socket)
-	a.Post("/", a.CreateUser)
+	a.Post("/api/user", a.CreateUser)
 	a.Get("/api/user", a.ValidateMiddleware(a.GetUser))
+
+	a.Post("/api/plan/test", a.GetPlan)
+	a.Get("/api/plan", a.GetPlans)
+	a.Post("/api/plan", a.CreatePlan)
+	a.Delete("/api/plan", a.DeletePlan)
+
 
 }
 
 func (a *App) GetUser(w http.ResponseWriter, r *http.Request) {
-	var user dao.User
+	user := new(dao.User)
 	userContext := context.Get(r, "user")
-	user, err := lib.GetUserStruct(userContext)
+	user, err := dao.GetUserStruct(userContext)
 	if err != nil {
 		handler.RespondError(w, http.StatusOK, handler.InternalError, err)
 	}
@@ -182,5 +190,29 @@ func (a *App) GetUser(w http.ResponseWriter, r *http.Request) {
 func (a *App) CreateUser(w http.ResponseWriter, r *http.Request) {
 	dbSession := a.MongoDB.Copy()
 	defer dbSession.Close()
-	handler.CreateUserEndPoint(dbSession, w, r)
+	handler.CreateUserEndPoint(dbSession, a.Stripe, w, r)
+}
+
+func (a *App) GetPlans(w http.ResponseWriter, r *http.Request) {
+	dbSession := a.MongoDB.Copy()
+	defer dbSession.Close()
+	handler.GetPlansEndpoint(dbSession, w, r)
+}
+
+func (a *App) GetPlan(w http.ResponseWriter, r *http.Request) {
+	dbSession := a.MongoDB.Copy()
+	defer dbSession.Close()
+	handler.GetPlanEndpoint(dbSession, w, r)
+}
+
+func (a *App) CreatePlan(w http.ResponseWriter, r *http.Request) {
+	dbSession := a.MongoDB.Copy()
+	defer dbSession.Close()
+	handler.CreatePlanEndpoint(dbSession, w, r)
+}
+
+func (a *App) DeletePlan(w http.ResponseWriter, r *http.Request) {
+	dbSession := a.MongoDB.Copy()
+	defer dbSession.Close()
+	handler.DeletePlanEndpoint(dbSession, w, r)
 }

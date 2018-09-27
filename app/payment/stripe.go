@@ -5,27 +5,14 @@ import (
 	"github.com/stripe/stripe-go/charge"
 	"github.com/nu7hatch/gouuid"
 	"gopkg.in/mgo.v2"
-	"../dao"
+	"github.com/jackson6/gcic-server/app/dao"
 	"time"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/card"
 )
 
-type Charge struct{
-	UserID string
-	Amount int64
-	Currency stripe.Currency
-	Description string
-	Source string
-}
-
-type Card struct{
-	Customer string
-	Token string
-}
-
-func createCard(stripeKey string, info Card)(*stripe.Card, error){
+func CreateCard(stripeKey string, info dao.Card)(*stripe.Card, error){
 	stripe.Key = stripeKey
 
 	params := &stripe.CardParams{
@@ -39,7 +26,7 @@ func createCard(stripeKey string, info Card)(*stripe.Card, error){
 	return c, nil
 }
 
-func getAllCards(stripeKey, customerId string)([]*stripe.Card){
+func GetAllCards(stripeKey, customerId string)([]*stripe.Card){
 	var cards []*stripe.Card
 
 	stripe.Key = stripeKey
@@ -56,7 +43,7 @@ func getAllCards(stripeKey, customerId string)([]*stripe.Card){
 	return cards
 }
 
-func getCard(stripeKey, customerId, cardId string)(*stripe.Card, error){
+func GetCard(stripeKey, customerId, cardId string)(*stripe.Card, error){
 	stripe.Key = stripeKey
 
 	params := &stripe.CardParams{
@@ -69,7 +56,7 @@ func getCard(stripeKey, customerId, cardId string)(*stripe.Card, error){
 	return c, nil
 }
 
-func updateCard(stripeKey, cardId string, info Card)(*stripe.Card, error){
+func UpdateCard(stripeKey, cardId string, info dao.Card)(*stripe.Card, error){
 	stripe.Key = stripeKey
 
 	params := &stripe.CardParams{
@@ -83,7 +70,7 @@ func updateCard(stripeKey, cardId string, info Card)(*stripe.Card, error){
 	return c, nil
 }
 
-func deleteCard(stripeKey, cardId string, info Card)(*stripe.Card, error){
+func deleteCard(stripeKey, cardId string, info dao.Card)(*stripe.Card, error){
 	stripe.Key = stripeKey
 
 	params := &stripe.CardParams{
@@ -96,7 +83,7 @@ func deleteCard(stripeKey, cardId string, info Card)(*stripe.Card, error){
 	return c, nil
 }
 
-func chargeCard(db *mgo.Session, stripeKey string, info Charge) error{
+func ChargeCard(db *mgo.Session, stripeKey string, info *dao.Charge) (*stripe.Charge, error){
 	stripe.Key = stripeKey
 
 	args := &stripe.ChargeParams{
@@ -104,35 +91,40 @@ func chargeCard(db *mgo.Session, stripeKey string, info Charge) error{
 		Currency: stripe.String(string(info.Currency)),
 		Description: stripe.String(info.Description),
 	}
-	args.SetSource(info.Source) // obtained with Stripe.js
+	if info.Customer != nil {
+		args.Customer = stripe.String(info.Customer.ID)
+	} else {
+		args.SetSource(info.Source) // obtained with Stripe.js
+	}
 
 	u2, err := uuid.NewV4()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	args.SetIdempotencyKey(u2.String())
 
 	ch, err := charge.New(args)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	transaction := dao.Transaction{
 		ID:  bson.NewObjectId(),
-		UserID: info.UserID,
+		UserId: info.UserId,
 		ChargeID: ch.ID,
 		Amount: ch.Amount,
 		Currency: string(ch.Currency),
 		Description: ch.Description,
+		IdempotencyKey: u2.String(),
 		CreatedOn: time.Unix(ch.Created, 0),
 	}
 	err = dao.TransactionInsert(db, transaction)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return ch, nil
 }
 
-func getCharge(stripeKey, chargeId string) (*stripe.Charge, error){
+func GetCharge(stripeKey, chargeId string) (*stripe.Charge, error){
 	stripe.Key = stripeKey
 	c, err := charge.Get(chargeId, nil)
 	if err != nil {
@@ -141,7 +133,7 @@ func getCharge(stripeKey, chargeId string) (*stripe.Charge, error){
 	return c, nil
 }
 
-func updateCharge(stripeKey, chargeId string, params *stripe.ChargeParams)(*stripe.Charge, error){
+func UpdateCharge(stripeKey, chargeId string, params *stripe.ChargeParams)(*stripe.Charge, error){
 	stripe.Key = stripeKey
 
 	ch, err := charge.Update(chargeId, params)
@@ -151,7 +143,7 @@ func updateCharge(stripeKey, chargeId string, params *stripe.ChargeParams)(*stri
 	return ch, nil
 }
 
-func allCharges(stripeKey string) []*stripe.Charge{
+func AllCharges(stripeKey string) []*stripe.Charge{
 	var charges []*stripe.Charge
 
 	stripe.Key = stripeKey
@@ -166,7 +158,7 @@ func allCharges(stripeKey string) []*stripe.Charge{
 	return charges
 }
 
-func getCustmers(stripeKey string)([]*stripe.Customer){
+func GetCustomers(stripeKey string)([]*stripe.Customer){
 	var customers []*stripe.Customer
 
 	stripe.Key = stripeKey

@@ -4,19 +4,35 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
+	"github.com/stripe/stripe-go"
 )
 
 const (
 	TRANSACTION_COLLECTION = "user"
 )
 
+type Charge struct{
+	UserId string
+	Customer *stripe.Customer
+	Amount int64
+	Currency stripe.Currency
+	Description string
+	Source string
+}
+
+type Card struct{
+	Customer string
+	Token string
+}
+
 type Transaction struct {
 	ID bson.ObjectId `bson:"_id" json:"id"`
-	UserID string `bson:"user_id" json:"user_id"`
+	UserId string `bson:"user_id" json:"user_id"`
 	ChargeID string `bson:"charge_id" json:"charge_id"`
 	Amount int64 `bson:"amount" json:"amount"`
 	Currency string `bson:"currency" json:"currency"`
 	Description string `bson:"description" json:"description"`
+	IdempotencyKey string `bson:"idempotency_key" json:"idempotency_key"`
 	CreatedOn time.Time `bson:"created_on" json:"created_on"`
 }
 

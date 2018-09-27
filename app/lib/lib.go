@@ -1,19 +1,15 @@
 package lib
 
 import (
-	"encoding/json"
-	"../dao"
+	"math/rand"
 )
 
-func GetUserStruct(data interface{}) (dao.User, error) {
-	var user dao.User
-	jsonStr, err := json.Marshal(data)
-	if err != nil {
-		return user, err
+var letters = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandSeq(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
 	}
-	err = json.Unmarshal(jsonStr, &user)
-	if err != nil {
-		return user, err
-	}
-	return user, nil
+	return string(b)
 }

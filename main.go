@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./app"
-	"./config"
+	"github.com/jackson6/gcic-server/app"
+	"github.com/jackson6/gcic-server/config"
 )
 
 func main() {

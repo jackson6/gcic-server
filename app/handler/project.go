@@ -4,11 +4,14 @@ import (
 	"net/http"
 	"encoding/json"
 	"gopkg.in/mgo.v2"
+	"github.com/jackson6/gcic-server/app/dao"
+	"github.com/jackson6/gcic-server/app/payment"
+	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/customer"
 	"gopkg.in/mgo.v2/bson"
-	"../dao"
 )
 
-func GetUserEndpoint(w http.ResponseWriter, r *http.Request, user dao.User) {
+func GetUserEndpoint(w http.ResponseWriter, r *http.Request, user *dao.User) {
 	defer r.Body.Close()
 	response := HttpResponse{
 		ResultCode: 200,
@@ -18,22 +21,131 @@ func GetUserEndpoint(w http.ResponseWriter, r *http.Request, user dao.User) {
 	RespondJSON(w, http.StatusOK, response)
 }
 
-func CreateUserEndPoint(mgoDb *mgo.Session, w http.ResponseWriter, r *http.Request) {
+func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	var user dao.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	var flow dao.CreateUser
+	if err := json.NewDecoder(r.Body).Decode(&flow); err != nil {
 		RespondError(w, http.StatusBadRequest, BadRequest, err)
 		return
 	}
-	user.ID = bson.ObjectId(user.ID)
-	if err := dao.UserInsert(mgoDb, user); err != nil {
+
+	plan, err := dao.PlanFindById(mgoDb, "5baad3095b5225373441c0ac"/*flow.User.PlanId*/)
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, InternalError, err)
+	}
+
+	charge := &dao.Charge{
+		Amount: plan.Amount,
+		Currency: stripe.CurrencyJMD,
+		Description: plan.Description,
+		Source: flow.Token,
+	}
+
+	if flow.SaveCard {
+		customerParams := &stripe.CustomerParams{
+			Email: stripe.String(flow.User.Email),
+		}
+		customerParams.SetSource(flow.Token)
+
+		newCustomer, err := customer.New(customerParams)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		charge.Customer = newCustomer
+	}
+
+	charged, err := payment.ChargeCard(mgoDb, stripeKey, charge)
+	if err != nil {
+		RespondError(w, http.StatusBadRequest, BadRequest, err)
+	}
+	if charged != nil {
+		flow.User.ID = bson.ObjectId(flow.User.ID)
+		if err := dao.UserInsert(mgoDb, &flow.User); err != nil {
+			RespondError(w, http.StatusInternalServerError, InternalError, err)
+			return
+		}
+	}
+	response := HttpResponse{
+		ResultCode: 200,
+		CodeContent: "Success",
+		Data: flow.User,
+	}
+	RespondJSON(w, http.StatusOK, response)
+}
+
+func GetPlanEndpoint(mgoDb *mgo.Session, w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	plan := new(dao.Plan)
+	if err := json.NewDecoder(r.Body).Decode(&plan); err != nil {
+		RespondError(w, http.StatusBadRequest, BadRequest, err)
+		return
+	}
+	plan, err := dao.PlanFindById(mgoDb, plan.ID.Hex())
+	if err != nil {
 		RespondError(w, http.StatusInternalServerError, InternalError, err)
 		return
 	}
 	response := HttpResponse{
 		ResultCode: 200,
 		CodeContent: "Success",
-		Data: user,
+		Data: plan,
+	}
+	RespondJSON(w, http.StatusOK, response)
+}
+
+func GetPlansEndpoint(mgoDb *mgo.Session, w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	plans, err := dao.PlanFindAll(mgoDb)
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, InternalError, err)
+		return
+	}
+	response := HttpResponse{
+		ResultCode: 200,
+		CodeContent: "Success",
+		Data: plans,
+	}
+	RespondJSON(w, http.StatusOK, response)
+}
+
+func CreatePlanEndpoint(mgoDb *mgo.Session, w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	plan := new(dao.Plan)
+	if err := json.NewDecoder(r.Body).Decode(&plan); err != nil {
+		RespondError(w, http.StatusBadRequest, BadRequest, err)
+		return
+	}
+
+	plan.ID = bson.NewObjectId()
+	if err := dao.PlanInsert(mgoDb, plan); err != nil {
+		RespondError(w, http.StatusInternalServerError, InternalError, err)
+		return
+	}
+	response := HttpResponse{
+		ResultCode: 200,
+		CodeContent: "Success",
+		Data: plan,
+	}
+	RespondJSON(w, http.StatusOK, response)
+}
+
+func DeletePlanEndpoint(mgoDb *mgo.Session, w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	plan := new(dao.Plan)
+	if err := json.NewDecoder(r.Body).Decode(&plan); err != nil {
+		RespondError(w, http.StatusBadRequest, BadRequest, err)
+		return
+	}
+
+	if err := dao.PlanDelete(mgoDb, plan); err != nil {
+		RespondError(w, http.StatusInternalServerError, InternalError, err)
+		return
+	}
+	response := HttpResponse{
+		ResultCode: 200,
+		CodeContent: "Success",
+		Data: plan,
 	}
 	RespondJSON(w, http.StatusOK, response)
 }
