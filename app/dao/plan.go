@@ -35,6 +35,7 @@ func PlanFindByKey(db *mgo.Session, find *Plan) (*Plan, error) {
 }
 
 func PlanInsert(db *mgo.Session, plan *Plan) error {
+	plan.ID = bson.NewObjectId()
 	err := db.DB(DATABASE).C(PLAN_COLLECTION).Insert(&plan)
 	return err
 }

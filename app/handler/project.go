@@ -7,7 +7,7 @@ import (
 	"github.com/jackson6/gcic-server/app/dao"
 	"github.com/jackson6/gcic-server/app/payment"
 	"github.com/stripe/stripe-go"
-	"gopkg.in/mgo.v2/bson"
+	"log"
 )
 
 func GetUserEndpoint(w http.ResponseWriter, r *http.Request, user *dao.User) {
@@ -49,15 +49,21 @@ func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWri
 		}
 		charge.Customer = newCustomer
 	}
-
 	charged, err := payment.ChargeCard(mgoDb, stripeKey, charge)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, InternalError, err)
 		return
 	}
 	if charged != nil {
-		flow.User.ID = bson.NewObjectId()
+		memberId, err := dao.GenerateMemberId(mgoDb)
+		if err != nil {
+			log.Println("err1")
+			RespondError(w, http.StatusInternalServerError, InternalError, err)
+			return
+		}
+		flow.User.MemberId = memberId
 		if err := dao.UserInsert(mgoDb, &flow.User); err != nil {
+			log.Println("err2")
 			RespondError(w, http.StatusInternalServerError, InternalError, err)
 			return
 		}
@@ -112,8 +118,6 @@ func CreatePlanEndpoint(mgoDb *mgo.Session, w http.ResponseWriter, r *http.Reque
 		RespondError(w, http.StatusBadRequest, BadRequest, err)
 		return
 	}
-
-	plan.ID = bson.NewObjectId()
 	if err := dao.PlanInsert(mgoDb, plan); err != nil {
 		RespondError(w, http.StatusInternalServerError, InternalError, err)
 		return

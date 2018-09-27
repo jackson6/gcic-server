@@ -7,7 +7,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"github.com/jackson6/gcic-server/app/dao"
 	"time"
-	"gopkg.in/mgo.v2/bson"
 	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/card"
 )
@@ -108,7 +107,6 @@ func ChargeCard(db *mgo.Session, stripeKey string, info *dao.Charge) (*stripe.Ch
 		return nil, err
 	}
 	transaction := dao.Transaction{
-		ID:  bson.NewObjectId(),
 		UserId: info.UserId,
 		ChargeID: ch.ID,
 		Amount: ch.Amount,

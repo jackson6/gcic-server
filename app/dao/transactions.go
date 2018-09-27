@@ -55,6 +55,7 @@ func TransactionFindByKey(db *mgo.Session, find Transaction) (Transaction, error
 }
 
 func TransactionInsert(db *mgo.Session, transaction Transaction) error {
+	transaction.ID = bson.NewObjectId()
 	err := db.DB(DATABASE).C(TRANSACTION_COLLECTION).Insert(&transaction)
 	return err
 }

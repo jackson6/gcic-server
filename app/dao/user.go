@@ -58,9 +58,9 @@ func GetUserStruct(data interface{}) (*User, error) {
 	return user, nil
 }
 
-func generateMemberId(db *mgo.Session)(string, error){
+func GenerateMemberId(db *mgo.Session)(string, error){
 	id := lib.RandSeq(6)
-	_, err := UserFindByKey(db, &User{MemberId: id})
+	_, err := UserFindByKey(db, &bson.M{"member_id": id})
 	if err != nil && err.Error() != "not found" {
 		return id, err
 	}
@@ -79,19 +79,15 @@ func UserFindById(db *mgo.Session, id string) (*User, error) {
 	return user, err
 }
 
-func UserFindByKey(db *mgo.Session, find *User) (*User, error) {
+func UserFindByKey(db *mgo.Session, find *bson.M) (*User, error) {
 	user := new(User)
 	err := db.DB(DATABASE).C(USER_COLLECTION).Find(find).One(&user)
 	return user, err
 }
 
 func UserInsert(db *mgo.Session, user *User) error {
-	memberId, err := generateMemberId(db)
-	if err != nil {
-		return err
-	}
-	user.MemberId = memberId
-	err = db.DB(DATABASE).C(USER_COLLECTION).Insert(&user)
+	user.ID = bson.NewObjectId()
+	err := db.DB(DATABASE).C(USER_COLLECTION).Insert(&user)
 	return err
 }
 

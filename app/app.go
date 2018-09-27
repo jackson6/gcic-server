@@ -20,6 +20,7 @@ import (
 	_ "gopkg.in/cq.v1"
 	"database/sql"
 	"github.com/googollee/go-socket.io"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // App has router and db instances
@@ -115,7 +116,7 @@ func (a *App) ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
 					handler.RespondError(w, http.StatusOK, handler.UnauthorizedError, err)
 					return
 				}
-				user, err := dao.UserFindByKey(a.MongoDB, &dao.User{UserId: token.UID})
+				user, err := dao.UserFindByKey(a.MongoDB, &bson.M{"user_id": token.UID})
 				if err != nil {
 					handler.RespondError(w, http.StatusOK, handler.NotFound, err)
 					return
