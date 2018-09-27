@@ -38,6 +38,6 @@ func GetConfig() *Config {
 			Prefix: "socket.io",
 		},
 		SECRET: "!n^e$t%4dc$2id*32+",
-		StripeKey: "sk_test_BQokikJOvBiI2HlWgH4olfQ2",
+		StripeKey: "sk_test_0R7KtTokmbmUk1sK2qqdyi6y",
 	}
 }
