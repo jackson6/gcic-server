@@ -15,6 +15,7 @@ const (
 
 type User struct {
 	ID bson.ObjectId `bson:"_id"json:"id"`
+	UserId string `bson:"user_id"json:"user_id"`
 	MemberId string `bson:"member_id"json:"member_id"`
 	FirstName string `bson:"first_name"json:"first_name"`
 	LastName string `bson:"last_name"json:"last_name"`

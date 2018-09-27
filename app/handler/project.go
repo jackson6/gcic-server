@@ -56,7 +56,7 @@ func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWri
 		return
 	}
 	if charged != nil {
-		flow.User.ID = bson.ObjectId(flow.User.ID)
+		flow.User.ID = bson.NewObjectId()
 		if err := dao.UserInsert(mgoDb, &flow.User); err != nil {
 			RespondError(w, http.StatusInternalServerError, InternalError, err)
 			return

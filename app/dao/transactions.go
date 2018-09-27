@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	TRANSACTION_COLLECTION = "user"
+	TRANSACTION_COLLECTION = "transaction"
 )
 
 type Charge struct{
