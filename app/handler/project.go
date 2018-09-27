@@ -31,6 +31,7 @@ func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWri
 	plan, err := dao.PlanFindById(mgoDb, "5baad3095b5225373441c0ac"/*flow.User.PlanId*/)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, InternalError, err)
+		return
 	}
 
 	charge := &dao.Charge{
@@ -51,7 +52,8 @@ func CreateUserEndPoint(mgoDb *mgo.Session, stripeKey string, w http.ResponseWri
 
 	charged, err := payment.ChargeCard(mgoDb, stripeKey, charge)
 	if err != nil {
-		RespondError(w, http.StatusBadRequest, BadRequest, err)
+		RespondError(w, http.StatusInternalServerError, InternalError, err)
+		return
 	}
 	if charged != nil {
 		flow.User.ID = bson.ObjectId(flow.User.ID)
